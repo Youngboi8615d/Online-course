@@ -1,0 +1,105 @@
+---RETRIVE ALL DATA
+  SELECT * FROM online_course_engagement_data
+
+---DATA CLEANING
+SELECT DISTINCT CourseCategory
+FROM online_course_engagement_data
+
+
+SELECT DISTINCT UserID
+FROM online_course_engagement_data
+
+
+---GENERATING INSIGHT/METRICS
+
+---COUNTING NUMBER OF EACH COURSE OCCUR
+SELECT CourseCategory, COUNT(COURSECATEGORY) 'No Of Occurance'
+FROM online_course_engagement_data
+GROUP BY CourseCategory
+
+
+---CALCULATING TOTAL TIME SPENT ON EACH COURSE
+SELECT CourseCategory,SUM(TimeSpentOnCourse) 'Total Time Spent'
+FROM online_course_engagement_data
+GROUP BY CourseCategory
+ORDER BY [Total Time Spent] DESC
+
+
+---SURVEY QUIZ TAKEN AND QUIZ SCORE
+SELECT CourseCategory,SUM(NumberOfQuizzesTaken) 'Total No Of Quiz Taken',SUM(QuizScores) 'Total No Of Quize_Score'
+FROM online_course_engagement_data
+GROUP BY CourseCategory
+
+
+---CALCULATION OF TOTAL VIDEO WATCHED
+SELECT CourseCategory,SUM(NumberOfVideosWatched) 'Total Video Watched'
+FROM online_course_engagement_data
+GROUP BY CourseCategory
+
+
+---COMPLETION RATE REVIEW ON EACH COURSE
+SELECT CourseCategory,CompletionRate,
+	CASE
+		WHEN CourseCompletion = 0 THEN 'Not Completed'
+		ELSE 'Completed'
+	END AS REVIEW
+FROM online_course_engagement_data
+GROUP BY CourseCategory,CompletionRate,
+	CASE
+		WHEN CourseCompletion = 0 THEN 'Not Completed'
+		ELSE 'Completed'
+	END
+
+
+---DEVICE CATEGORY
+SELECT DeviceType,
+	CASE
+		WHEN DeviceType = 0 THEN 'Borrowed Device'
+		ELSE 'Owned'
+	END AS DEVICE_CATEGORY
+FROM online_course_engagement_data
+GROUP BY DeviceType,
+	CASE
+		WHEN DeviceType = 0 THEN 'Borrowed Device'
+		ELSE 'Owned'
+	END
+
+
+---LOOKING AT COURSE COMPLETION RATE BASED ON DEVICE TYPE
+SELECT CourseCategory,CompletionRate,DeviceType,
+	CASE
+		WHEN CourseCompletion = 0 THEN 'Not Completed'
+		ELSE 'Completed'
+	END AS REVIEW
+FROM online_course_engagement_data
+GROUP BY CourseCategory,CompletionRate,DeviceType,
+	CASE
+		WHEN CourseCompletion = 0 THEN 'Not Completed'
+		ELSE 'Completed'
+	END
+
+---ADDING NEW COLUMN
+ALTER TABLE online_course_engagement_data
+ADD Device_category NCHAR(50)
+
+---UPDATING THE COLUMN FIELD
+UPDATE online_course_engagement_data
+SET Device_category = 'Borrowed device'
+WHERE DeviceType = 0
+
+
+UPDATE online_course_engagement_data
+SET Device_category = 'Owned'
+WHERE DeviceType = 1
+
+
+---GENERATING TIME SPENT ON COURSE BASED ON DEVICE
+SELECT ROUND(SUM(TimeSpentOnCourse),2) TOTAL_TIME_SPENT,Device_category
+FROM online_course_engagement_data
+GROUP BY Device_category
+
+
+---HERE LOOKING AT DEVICE CATEGORY BASED ON COMPLETION RATE
+SELECT ROUND(SUM(CompletionRate),2) TOTAL_RATE,Device_category
+FROM online_course_engagement_data
+GROUP BY Device_category
